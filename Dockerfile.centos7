@@ -1,0 +1,22 @@
+FROM centos:7
+RUN yum install -y python \
+    && yum groupinstall -y 'development tools'
+RUN true \
+    && curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh \
+    | bash \
+    && export NVM_DIR="$HOME/.nvm" \
+    && source $NVM_DIR/nvm.sh \
+    && nvm --version \
+    && nvm install 8.11.4 \
+    && node -v \
+    && npm install -g yarn
+WORKDIR /usr/src/app
+COPY . /usr/src/app
+RUN export NVM_DIR="$HOME/.nvm" && \
+    source $NVM_DIR/nvm.sh && \
+    set -x && \
+    yarn && \ 
+    yarn build && \
+    yarn install --production --ignore-scripts --prefer-offline && \
+    mkdir /wetty && \
+    cp -r /usr/src/app/{dist,index.js,node_modules,package.json} /wetty/
